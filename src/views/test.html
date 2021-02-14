@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang=en>
+<head>
+<meta charset=utf-8>
+<title>Test Cable API</title>
+</head>
+
+<body>
+<p>shuss vue</p>
+<script src="../js/lib/util.js"></script>
+<script src="../js/lib/url.js"></script>
+<script src="../js/lib/ajax.js"></script>
+<script src="../js/api.js"></script>
+<script>
+
+var apiUrl = '../api.php';
+
+var api = new Api(apiUrl);
+
+// To run a particular method, uncomment the respective code block, and comment out all others,
+// then refresh the page and see the console in your browser
+// Run methods one by one consecutively in this order as they are in code
+
+/*//---- 'cable_get' ----
+
+api.call('cable_get').then(function(response) {
+  console.log('cable_get:');
+  console.log(response);
+}).catch(function(response) {
+  console.log('cable_get:');
+  console.log(response);
+});*/
+
+/*//---- 'cable_add' ----
+ 
+var data = [
+  {
+    name:   'do48',
+    type:   'microphone',
+    total:  100
+  },
+  {
+    name:   'rs232',
+    type:   'speaker',
+    total:  50
+  }
+];
+
+api.call('cable_add', data).then(function(response) {
+  console.log('cable_add:');
+  console.log(response);
+}).catch(function(response) {
+  console.log('cable_add:');
+  console.log(response);
+});*/
+
+/*//---- 'cable_update' ----
+
+var data = [
+  {
+    cableid: 17,  // put here real cableid that were added via 'cable_add', see it in 'cable' table in phpmyadmin
+    name:   'do50',
+    type:   'electrical',
+    total:  50
+  },
+  {
+    cableid: 18,  // put here real cableid that were added via 'cable_add', see it in 'cable table in phpmyadmin
+    name:   'rs434',
+    type:   'microphone',
+    total:  30
+  }
+];
+
+api.call('cable_update', data).then(function(response) {
+  console.log('cable_update:');
+  console.log(response);
+}).catch(function(response) {
+  console.log('cable_update:');
+  console.log(response);
+});*/
+
+/*//---- 'cable_delete' ----
+
+// [ 17, 18 ] put here actual cable ids, see them in 'cable' table in phpmyadmin
+
+api.call('cable_delete', [ 17, 18 ]).then(function(response) {
+  console.log('cable_delete:');
+  console.log(response);
+}).catch(function(response) {
+  console.log('cable_delete:');
+  console.log(response);
+});*/
+
+//---- 'affair_get' ----
+
+var searchby = {
+  //tech_id: 3,
+  name: 'Casino de Paris'
+};
+
+api.call('affair_get', searchby).then(function(response) {
+  console.log('affair_get:');
+  console.log(response);
+}).catch(function(response) {
+  console.log('affair_get:');
+  console.log(response);
+});
+
+/*//---- 'affair_add' ----
+
+var data = {
+  tech_id:      32,
+  tech_name:    'John Smith',
+  name:         'Bolshoi Theater',
+  prep_date:    '2021-02-15',
+  prep_time:    'afternoon',
+  receipt_date: '2021-02-17',
+  return_date:  '2021-02-18',
+  monitor:      true,
+  stage:        true
+};
+
+api.call('affair_add', data).then(function(response) {
+  console.log('affair_add:');
+  console.log(response);
+}).catch(function(response) {
+  console.log('affair_add:');
+  console.log(response);
+});*/
+
+/*//---- 'affair_update' ----
+
+var data = {
+  affairid:     3,  // put here actual affairid you want to update
+  name:         'Crocus Hall',
+  prep_time:    'morning'
+};
+
+api.call('affair_update', data).then(function(response) {
+  console.log('affair_update:');
+  console.log(response);
+}).catch(function(response) {
+  console.log('affair_update:');
+  console.log(response);
+});*/
+
+/*//---- 'affair_delete' ----
+
+var data = {
+  affairid: '3'  // put here actual affairid you want to delete
+};
+
+api.call('affair_delete', data).then(function(response) {
+  console.log('affair_delete:');
+  console.log(response);
+}).catch(function(response) {
+  console.log('affair_delete:');
+  console.log(response);
+});*/
+
+</script>
+
+</body>
+</html>

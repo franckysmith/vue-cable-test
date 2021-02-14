@@ -1,0 +1,6 @@
+[09-Feb-2021 13:59:52 UTC] PHP Warning:  mysqli_connect(): (HY000/1045): Access denied for user 'Smith2138p'@'localhost' (using password: YES) in C:\Apache24\htdocs\cables\lib\dbbase.php on line 508
+[09-Feb-2021 13:59:52 UTC] PHP Fatal error:  Access denied for user 'Smith2138p'@'localhost' (using password: YES) in C:\Apache24\htdocs\cables\lib\dbbase.php on line 509
+[09-Feb-2021 14:00:14 UTC] PHP Warning:  mysqli_connect(): (HY000/1045): Access denied for user 'Smith2138p'@'localhost' (using password: YES) in C:\Apache24\htdocs\cables\lib\dbbase.php on line 508
+[09-Feb-2021 14:00:14 UTC] PHP Fatal error:  Access denied for user 'Smith2138p'@'localhost' (using password: YES) in C:\Apache24\htdocs\cables\lib\dbbase.php on line 509
+[09-Feb-2021 14:02:26 UTC] PHP Warning:  mysqli_connect(): (HY000/1045): Access denied for user 'Smith2138p'@'localhost' (using password: YES) in C:\Apache24\htdocs\cables\lib\dbbase.php on line 508
+[09-Feb-2021 14:02:26 UTC] PHP Fatal error:  Access denied for user 'Smith2138p'@'localhost' (using password: YES) in C:\Apache24\htdocs\cables\lib\dbbase.php on line 509

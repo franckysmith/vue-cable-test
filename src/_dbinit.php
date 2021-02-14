@@ -1,0 +1,82 @@
+<?
+// File:       _dbinit.php.php
+// Contents:   service script to init/modify the database
+// Created:    21.01.2021
+// Programmer: Edward A. Shiryaev
+
+require_once 'config.php';
+require_once 'db.php';
+require_once 'util.php';
+
+if(@$_GET['password'] != 'cables')
+  exit('Authorization error');
+  
+        // Database schema SQL-queries as i-array to add new table(s) to the database.
+        // total    - number of pieces that the company totally has
+        // reserved - number of pieces kept apart by the company (reserved by the company)
+        // ordered  - number of pieces ordered by technicians for their affairs via this app
+  
+$SCHEMA_SCRIPT = 
+[
+  'CREATE TABLE cable
+  (
+    cableid       INT UNSIGNED NOT NULL AUTO_INCREMENT,
+    name          VARCHAR(25) NOT NULL,
+    type          ENUM("electrical", "speaker", "microphone"),
+    
+    total         INT UNSIGNED NOT NULL DEFAULT 0,
+    reserved      INT UNSIGNED NOT NULL DEFAULT 0,
+    ordered       INT UNSIGNED NOT NULL DEFAULT 0,
+    
+    info          VARCHAR(255),
+    link          VARCHAR(255),
+    
+    timestamp     TIMESTAMP NOT NULL DEFAULT NOW() ON UPDATE NOW(),
+    
+    PRIMARY KEY   (cableid),
+    UNIQUE KEY    (name)
+  ) engine=innoDB collate utf8_general_ci',
+  
+  
+  'CREATE TABLE affair
+  (
+    affairid      INT UNSIGNED NOT NULL AUTO_INCREMENT,
+    
+    tech_id       INT UNSIGNED NOT NULL,
+    tech_name     VARCHAR(50) NOT NULL,
+    
+    name          VARCHAR(50) NOT NULL,
+    ref           VARCHAR(50),
+    
+    prep_date     DATE,
+    prep_time     ENUM("morning", "afternoon"),
+    receipt_date  DATE NOT NULL,
+    receipt_time  ENUM("morning", "afternoon"),
+    return_date   DATE NOT NULL,
+    return_time   ENUM("morning", "afternoon"),
+    
+    front         BOOLEAN NOT NULL DEFAULT 0,
+    monitor       BOOLEAN NOT NULL DEFAULT 0,
+    stage         BOOLEAN NOT NULL DEFAULT 0,
+  
+    master_note   TEXT,
+    tech_note     TEXT,
+    
+    timestamp     TIMESTAMP NOT NULL DEFAULT NOW() ON UPDATE NOW(),
+    
+    PRIMARY KEY   (affairid),
+    UNIQUE KEY    (name, receipt_date),
+    UNIQUE KEY    (ref)
+  ) engine=innoDB collate utf8_general_ci'
+];
+
+foreach($SCHEMA_SCRIPT as $query) {
+  echo util::textChunk($query, 50), str_repeat('&nbsp;', 50);
+  if(db::query($query, false /* silent */))
+    echo 'done', '<br>';
+  else
+    echo db::error(), '<br>';
+}
+  
+echo '<br>Database inited!';
+?>
