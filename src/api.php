@@ -114,7 +114,21 @@ class api extends errorhandled {
       
       case 'cable_get':
         
-        $result = db::rows('*', 'cable');
+        $rows = db::rows('*', 'cable');
+        
+        //---- calc 'ordered' fields and merge them into $result ----
+        
+        $cableids = [];
+        foreach($rows as &$row)
+          $cableids[] = $row['cableid'];
+          
+        $ordereds = db::calcOrdereds($cableids);
+        
+        $result = [];
+        foreach($rows as &$row)
+          // @ for highly unlikely case when a cable was deleted by concurrent request between db::rows() and
+          // db::calcOrdereds(), so $ordereds[$row['cableid'] is missing - it's because we don't use transaction here
+          $result[] = util::array_insert($row, 'info', [ 'ordered' => (int)@$ordereds[$row['cableid']] ]);
         
         break;
       
@@ -138,8 +152,8 @@ class api extends errorhandled {
         //      ...
         //    ], or
         //    {
-        //      'error' =>  <error message, if at least one cable has violated self::$FIELDS['cable_add'] constraints
-        //                  or cable with that name already exists in the 'cable' table in which case no cable is added>
+        //      'error' =>  <error message, if at least one cable violates self::$FIELDS['cable_add'] constraints
+        //                  or cable with that name already exists in the 'cable' table>
         //    }
       
       case 'cable_add':
@@ -193,8 +207,8 @@ class api extends errorhandled {
         // Output:
         //    nothing if succeeded, or
         //    {
-        //      'error' => <error message, if at least one cable has violated self::$FIELDS['cable_update'] constraints
-        //                 or cable with that name already exists in the 'cable' table in which case no cable is updated>
+        //      'error' => <error message, if at least one cable violates self::$FIELDS['cable_update'] constraints
+        //                 or cable with that name already exists in the 'cable' table>
         //    }
       
       case 'cable_update':
@@ -229,7 +243,7 @@ class api extends errorhandled {
         // Deletes cables from 'cable' table.
         // Input:
         //    [
-        //      <cableid1>: <cableid of the first cable to delete>,
+        //      <cableid1>: <id of the first cable to delete>,
         //      ...
         //    ]
         // Output:
@@ -255,7 +269,14 @@ class api extends errorhandled {
             break;
           }
           
-          db::delete('cable', $cableid);
+          if(!db::delete('cable', $cableid, false /* silent */)) {
+            if(db::errNo() != db::ER_ROW_IS_REFERENCED)
+              self::trigger(db::error());   // we don't handle such an error
+            
+            $result['error'] =  'The cable '.json_encode(compact('cableid')).
+                                ' cannot be deleted as there are orders for it in the system';
+            break;            
+          }
         }
         
         if(!isset($result['error']))
@@ -264,13 +285,24 @@ class api extends errorhandled {
         break;
       
 
-        // Gets affairs from the 'affair' table, either all or matching a 'searchby' search criteria if specified.
+        // Gets affairs from the 'affair' table, either all or matching a search criteria if specified.
         // Input:
-        //    an object with one or more 'affair' table fields with values to get just affairs having those values in
-        //    those fields:
+        //    search criteria as an object with these possible fields with specified values:
         //    {
-        //      <field1>: <value1>,
-        //      ...
+        //      [affairid],
+        //      [tech_id],
+        //      [tech_name],
+        //      [name],
+        //      [ref],
+        //      [prep_date],
+        //      [prep_time],
+        //      [receipt_date],
+        //      [receipt_time],
+        //      [return_date],
+        //      [return_time],
+        //      [front],
+        //      [monitor],
+        //      [stage]
         //    },
         //    or nothing to get all affairs
         // Note:
@@ -334,7 +366,7 @@ class api extends errorhandled {
         //      affairid: <id of just added affair>
         //    }, or
         //    {
-        //      error:  <error message if any field has violated self::$FIELDS['affair_add'] constraints or an affair
+        //      error:  <error message if any field violates self::$FIELDS['affair_add'] constraints or an affair
         //              with same 'name' and 'receipt_date' or else same 'ref' already exists>
         //    }
       
@@ -385,7 +417,7 @@ class api extends errorhandled {
         // Output:
         //    nothing if succeeded, or
         //    {
-        //      error:  <error message if any field has violated self::$FIELDS['affair_update'] constraints or an affair
+        //      error:  <error message if any field violates self::$FIELDS['affair_update'] constraints or an affair
         //              with same 'name' and 'receipt_date' or else same 'ref' already exists>
         //    }
      
@@ -433,6 +465,193 @@ class api extends errorhandled {
         db::delete('affair', self::$data['affairid']);
         
         break;
+
+      
+        // Gets orders from the 'order' table, either all or matching a search criteria if specified.
+        // Input:
+        //    search criteria as an object with these possible fields with specified values:
+        //    {
+        //      [orderid],
+        //      [cableid],
+        //      [affairid],
+        //      [tech_id],
+        //      [count],
+        //      [done]
+        //    },
+        //    or nothing to get all orders
+        // Note:
+        //    For now the exact match search is only implemented.
+        // Output:
+        //    [
+        //      {
+        //        orderid,
+        //        cableid,
+        //        affairid,
+        //        tech_id,
+        //        count,
+        //        done,
+        //        timestamp
+        //      },
+        //      ...
+        //    ]
+      
+      case 'order_get':
+        
+        // silently unset not searchable fields, if any
+        $where = self::$data ? form::prepareValues(self::$FIELDS[$method], self::$data) : '';
+        
+        $result = db::rows('*', '`order`', $where); // `order` needs backticks as 'order' is reserved in MySQL
+        
+        break;
+      
+      
+        // Adds new orders to 'order' table.
+        // Input:
+        //    [
+        //      {
+        //        cableid,
+        //        affairid,
+        //        tech_id,
+        //        count,
+        //        [done]: <is set to false if missing>
+        //      },
+        //      ...
+        //    ]
+        // Output:
+        //    [
+        //      <orderid1>: <orderid of the first order added>,
+        //      ...
+        //    ], or
+        //    {
+        //      'error' =>  <error message, if at least one order violates self::$FIELDS['order_add'] constraints
+        //                  or an order with that (cableid, affairid, tech_id) already exists in the 'order' table>
+        //    }
+      
+      case 'order_add':
+        
+        db::query('BEGIN');
+        
+        $orderids = [];
+        foreach(self::$data as &$order) {
+          if($error = form::checkErrors(self::$FIELDS[$method], $order)) {
+            $result['error'] = current($error);
+            $result['field'] = current(array_keys($error));
+            break;
+          }
+          
+          $values = form::prepareValues(self::$FIELDS[$method], $order);
+          
+          if(!($orderid = db::insert('`order`', $values, false /* insert */, '', false /* silent */))) {
+            if(db::errNo() != db::ER_DUP_ENTRY)
+              self::trigger(db::error());   // we don't handle such an error
+              
+            extract($values);
+            $result['error'] = 'A try to add duplicate order: '.json_encode(compact('cableid', 'affairid', 'tech_id'));
+            break;
+          }
+              
+          $orderids[] = $orderid;
+        }
+        
+        if(isset($result['error']))
+          break;
+        
+        db::query('COMMIT');
+        $result = &$orderids;
+        
+        break;
+      
+      
+        // Updates orders in 'order' table.
+        // Input:
+        //    [
+        //      {
+        //        orderid,
+        //        [cableid],
+        //        [affairid],
+        //        [tech_id],
+        //        [count],
+        //        [done]
+        //      },
+        //      ...
+        //    ]
+        // Output:
+        //    nothing if succeeded, or
+        //    {
+        //      'error' => <error message, if at least one order violates self::$FIELDS['order_update'] constraints
+        //                 or an order with that (cableid, affairid, tech_id) already exists in the 'order' table>
+        //    }
+      
+      case 'order_update':
+        
+        db::query('BEGIN');        
+        
+        foreach(self::$data as &$order) {
+          if($error = form::checkErrors(self::$FIELDS[$method], $order)) {
+            $result['error'] = current($error);
+            $result['field'] = current(array_keys($error));
+            break;
+          }
+          
+          $values = form::prepareValues(self::$FIELDS[$method], $order);
+          
+          if(!db::update('`order`', $values, $values['orderid'], false /* silent */)) {
+            if(db::errNo() != db::ER_DUP_ENTRY)
+              self::trigger(db::error());   // we don't handle such an error
+              
+            extract($values);
+            $result['error'] = 'A try to update into duplicate order: '.
+                                json_encode(@compact('cableid', 'affairid', 'tech_id'));
+            break;
+          }
+        }
+        
+        if(isset($result['error']))
+          break;
+        
+        db::query('COMMIT');
+        
+        break;
+      
+      
+        // Deletes orders from 'order' table.
+        // Input:
+        //    [
+        //      <orderid1>: <id of the first order to delete>,
+        //      ...
+        //    ]
+        // Output:
+        //    nothing, or
+        //    {
+        //      error  
+        //    } in case of missing or invalid order id
+        
+      case 'order_delete':
+        
+        if(!self::$data) {
+          $result['error'] = 'No order ids specified';
+          break;
+        }
+        
+        db::query('BEGIN');
+        
+        foreach(self::$data as &$orderid) {
+          $values = compact('orderid'); // define $values to be able to pass it by reference to checkErrors()
+          if($error = form::checkErrors(self::$FIELDS[$method], $values)) {
+            $result['error'] = current($error);
+            $result['field'] = current(array_keys($error));
+            break;
+          }
+        
+          db::delete('`order`', $orderid);
+        }
+        
+        if(isset($result['error']))
+          break;
+        
+        db::query('COMMIT');
+            
+        break;
       
       
       default:
@@ -475,9 +694,9 @@ api::$FIELDS = [
     'cableid'   =>  RID
   ],
   
-      // searchable fields for WHERE CLAUSE, others than those are silently ignored; we do not check for data types so
-      // 'ANY' is used for all; master_note', 'tech_note' and 'timestamp' are excluded as there is no sense to search
-      // them for equal values - we will include them back if support fulltext and range searches, if any
+        // searchable fields for WHERE CLAUSE, others than those are silently ignored; we do not check for data types so
+        // 'ANY' is used for all; master_note', 'tech_note' and 'timestamp' are excluded as there is no sense to search
+        // them for equal values - we will include them back if support fulltext and range searches, if any
   
   'affair_get' =>
   [
@@ -494,10 +713,7 @@ api::$FIELDS = [
     'return_time'   =>  ANY,
     'front'         =>  ANY,
     'monitor'       =>  ANY,
-    'stage'         =>  ANY/*,
-    'master_note'   =>  [],
-    'tech_note'     =>  [],
-    'timestamp'     =>  []*/
+    'stage'         =>  ANY
   ],
   
   'affair_add' =>
@@ -542,6 +758,43 @@ api::$FIELDS = [
   'affair_delete' =>
   [
     'affairid'      =>  RID
+  ],
+  
+        // searchable fields for WHERE clause, others fields are silently igonored; we do not check for data type, so
+        // ANY for all
+  
+  'order_get' =>
+  [
+    'orderid'       =>  ANY,
+    'cableid'       =>  ANY,
+    'affairid'      =>  ANY,
+    'tech_id'       =>  ANY,
+    'count'         =>  ANY,
+    'done'          =>  ANY
+  ],
+  
+  'order_add' =>
+  [
+    'cableid'       =>  RID,
+    'affairid'      =>  RID,
+    'tech_id'       =>  RID,
+    'count'         =>  RID,  // RID not RUINT to prevent 0
+    'done'          =>  BOOL
+  ],
+  
+  'order_update' =>
+  [
+    'orderid'       =>  RID,
+    'cableid'       =>  ID,
+    'affairid'      =>  ID,
+    'tech_id'       =>  ID,
+    'count'         =>  ID,  // ID not UINT to prevent 0
+    'done'          =>  BOOL
+  ],
+  
+  'order_delete' =>
+  [
+    'orderid'       =>  RID
   ]
 ];
 

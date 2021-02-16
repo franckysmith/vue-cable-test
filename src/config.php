@@ -17,6 +17,10 @@ define('ASSERT_ENABLED', true);         // comment/uncomment to disable/enable a
 define('ASSERT_TRIGGER_ERROR', true);   // true value makes assert() trigger errors - good for release mode if errors
 require_once APP_DIR.'/lib/assert.php'; // are handled properly
 
+        // Introduced to sync PHP time with MySQL time which is local.
+
+define('TIMEZONE', 'Europe/Paris');
+
         // Introduced to be able to run server's api.php locally.
 
 define('API_CORS_DEBUG_ORIGIN', 'http://localhost:8080');
@@ -25,14 +29,9 @@ class config {
   
         // Database settings.
             
-//   const DB_SERVER   = 'localhost';
-//   const DB_USERNAME = 'Smith2138p';
-//   const DB_PASSWORD = '9Pca#foz2FadW9rx';
-//   const DB_NAME     = 'Cinod_otherthings';
-
   const DB_SERVER   = 'localhost';
-  const DB_USERNAME = 'root';
-  const DB_PASSWORD = 'root';
+  const DB_USERNAME = 'Smith2138p';
+  const DB_PASSWORD = '9Pca#foz2FadW9rx';
   const DB_NAME     = 'Cinod_otherthings';
   
   public static function main()
@@ -59,6 +58,8 @@ class config {
       PATH_SEPARATOR.APP_DIR.'/app'.
       PATH_SEPARATOR.APP_DIR.'/lib'
     );
+    
+    date_default_timezone_set(TIMEZONE);
   }  
 }
 

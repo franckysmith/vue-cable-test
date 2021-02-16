@@ -292,6 +292,10 @@ class dbbase {
         // Inserting/updating a row that violates a unique index constraint.
   
   const ER_DUP_ENTRY = 1062;
+  
+        // Deleting/updating a parent row violates a foreign key constraint in a child row.
+  
+  const ER_ROW_IS_REFERENCED = 1451;
 	
 	//---- database specific information ---------------------------------------------------------------------------------
   
@@ -787,7 +791,10 @@ class dbbase {
     if($where) 
       $query .= ' WHERE '.self::where($where, $table);
 
-    mysqli_query(self::$link, $query) or !$triggerError or trigger_error(mysqli_error(self::$link), E_USER_ERROR);
+    if(!($done = mysqli_query(self::$link, $query)) && $triggerError)
+      trigger_error(mysqli_error(self::$link), E_USER_ERROR);
+    
+    return $done;
   }
 }
 ?>

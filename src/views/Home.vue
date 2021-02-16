@@ -3,13 +3,7 @@
 </template>
 
 <script>
-// import util from "../js/lib/util.js";
-// import url from "../js/lib/url.js";
-// import ajax from "../js/lib/ajax.js";
-import api from "../js/api.js";
-var apiUrl = '../api.php';
-
-var api = new Api(apiUrl);
+import axios from "axios";
 
 export default {
   data() {
@@ -18,9 +12,9 @@ export default {
     };
   },
 
-  setup() {
-    api
-      .call("cable_get")
+  mounted() {
+    axios
+      .call("../api.php/cable_get")
       .then(function(response) {
         console.log("cable_get:");
         console.log(response);

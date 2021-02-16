@@ -523,5 +523,17 @@ class util {
     
     return $result;
   }
+  
+        // Inserts $what a-array into $where a-array before the specified $key. If $key is not among keys of $where,
+        // $what is appended at the end of $where. Inserting is made as array merge, so values under same keys of $what
+        // override those of $where, if any.
+  
+  public static function array_insert($where, $key, $what)
+  {
+    if(($pos = array_search($key, array_keys($where))) === false)
+      return array_merge($where, $what);
+      
+    return  array_merge(array_slice($where, 0, $pos), $what, array_slice($where, $pos));
+  }
 }
 ?>
