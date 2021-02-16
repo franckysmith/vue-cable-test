@@ -1,32 +1,18 @@
-// File:       util.js
+// File:       util.js (ES6 version)
 // Contents:   global utility functions
 // Created:    02.06.2014
 // Programmer: Edward A. Shiryaev
 
-        // Polyfill for Object.keys() for IE8.
-
-if(!Object.keys) {
-  Object.keys = function(o)
-  {
-    var result = [];
-    for(var key in o)
-      if(o.hasOwnProperty(key))
-        result.push(key);
-        
-    return result;
-  }
-}
-
         // Handy shorthand for empty function.
 
-function noop() {}
+export function noop() {}
 
         // Asserts a boolean expression. First, tries to use console assert(), then throws an Error object, if any.
         // Parameters:
         //    expr  - boolean expression to assert its TRUE value
         //    [msg] - custom error message
 
-function assert(expr, msg)
+export function assert(expr, msg)
 {
   if(window.console && console.assert)
     console.assert(expr, msg);
@@ -34,7 +20,7 @@ function assert(expr, msg)
     throw new Error('Assert failed' + (msg ? ': ' + msg : ''));
 }
 
-function throwError(msg)
+export function throwError(msg)
 {
   throw new Error(msg);
 }
@@ -43,24 +29,24 @@ function throwError(msg)
         // http://perfectionkills.com/instanceof-considered-harmful-or-how-to-write-a-robust-isarray
         // It is cross-frames solution. The check 'o instanceof Array' doesn't work if 'o' was created in other 'iframe'.
 
-function isArray(o)
+export function isArray(o)
 {
   return Object.prototype.toString.call(o) === '[object Array]'; 
 }
 
         // Check whether the specified object is empty.
 
-function isEmpty(o)
+export function isEmpty(o)
 {
   for(var key in o)
-    if(o.hasOwnProperty(key)) 
+    if(Object.prototype.hasOwnProperty.call(o, key))
       return false;
   return true;
 }
 
         // Returns the number of own properties for an object.
 
-function length(o)
+export function length(o)
 {
   return Object.keys(o).length;
 }
@@ -75,7 +61,7 @@ function length(o)
         // The code is taken from here, see second answer:
         //    https://stackoverflow.com/questions/728360/how-do-i-correctly-clone-a-javascript-object
 
-function clone(o)
+export function clone(o)
 {
   return JSON.parse(JSON.stringify(o));
 }
@@ -105,7 +91,7 @@ function clone(o)
         //    * Source object must fit the same requirements as for clone(), see above
         //    * Properties having empty object or array value are automatically removed by flatten()
 
-var flatten = (function() {
+export var flatten = (function() {
   var result = {};
   
   function nextPath(path, key)
@@ -120,7 +106,7 @@ var flatten = (function() {
       result = {};  // discard the result filled on previous run
 
     for(var key in o)
-      if(o.hasOwnProperty(key))
+      if(Object.prototype.hasOwnProperty.call(o, key))
         if(typeof o[key] == 'object')
           flatten(o[key], nextPath(path, key));
         else
@@ -138,7 +124,7 @@ var flatten = (function() {
         // Returns:
         //    Reference to the array - just the syntax sugar as the array is modified in place
 
-function hashify(a, key)
+export function hashify(a, key)
 {
   assert(key);
   
@@ -163,7 +149,7 @@ function hashify(a, key)
         //      [order]:  <'asc'|'desc', 'asc' if undefined>
         //    }
 
-function array(m, keyname, sort)
+export function array(m, keyname, sort)
 {
         // Parameters:
         //    o - object to insert with already written key to it if it was specified
@@ -210,12 +196,12 @@ function array(m, keyname, sort)
         // Parameters:
         //    o - either object or array with unique values
 
-function arrayFlip(o)
+export function arrayFlip(o)
 {
   var result = {};
 
   for(var key in o)
-    if(o.hasOwnProperty(key))
+    if(Object.prototype.hasOwnProperty.call(o, key))
       result[o[key]] = key;
 
   return result;
@@ -228,12 +214,12 @@ function arrayFlip(o)
         // Returns:
         //    New object with only those values from 'values' whose keys are present in 'keys' map object.
 
-function arrayIntersectKey(values, keys)
+export function arrayIntersectKey(values, keys)
 {
   var result = {};
   
   for(var key in values)
-    if(values.hasOwnProperty(key))
+    if(Object.prototype.hasOwnProperty.call(values, key))
       if(key in keys)
         result[key] = values[key];
         
@@ -251,19 +237,19 @@ function arrayIntersectKey(values, keys)
         //      * all keys of o1 with o1's values if o2 does not have those keys, or o2's values otherwise
         //      * all keys of o2 with o2's values if o1 does not have those keys
 
-function arrayMerge(o1, o2)
+export function arrayMerge(o1, o2)
 {
   var r = {};
   
   // make shallow copy of o1
   for(var key in o1)
-    if(o1.hasOwnProperty(key))
+    if(Object.prototype.hasOwnProperty.call(o1, key))
       r[key] = o1[key];
   
   // merge with o2
   o2 = o2 || {};
   for(var key in o2)
-    if(o2.hasOwnProperty(key))
+    if(Object.prototype.hasOwnProperty.call(o2, key))
       r[key] = o2[key];
       
   return r;      
@@ -276,7 +262,7 @@ function arrayMerge(o1, o2)
         // Note:
         //    keys and values arrays must be of equal length, or an error is fired
 
-function arrayCombine(keys, values)
+export function arrayCombine(keys, values)
 {
   assert(keys.length == values.length);
   
@@ -295,7 +281,7 @@ function arrayCombine(keys, values)
         //    [period]  - period in ms within which to reduce multiple calls, 50 ms if not specified; 0 - means to stop
         //                calling functions until next throttle() with non-null period
 
-var throttle = (function() {
+export var throttle = (function() {
   var timer;
   var funcs = {};
   
@@ -319,60 +305,10 @@ var throttle = (function() {
   }
 })();
 
-        // Polyfill for Array.prototype.find(), taken from here:
-        // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/find
-        // Array.prototype.find() is natively supported: CH45+, Edge12+, FF25+, Opera32+ Safari8+, IE - not supported.
-
-if (!Array.prototype.find) {
-  Object.defineProperty(Array.prototype, 'find', {
-    value: function(predicate) {
-     // 1. Let O be ? ToObject(this value).
-      if (this == null) {
-        throw new TypeError('"this" is null or not defined');
-      }
-
-      var o = Object(this);
-
-      // 2. Let len be ? ToLength(? Get(O, "length")).
-      var len = o.length >>> 0;
-
-      // 3. If IsCallable(predicate) is false, throw a TypeError exception.
-      if (typeof predicate !== 'function') {
-        throw new TypeError('predicate must be a function');
-      }
-
-      // 4. If thisArg was supplied, let T be thisArg; else let T be undefined.
-      var thisArg = arguments[1];
-
-      // 5. Let k be 0.
-      var k = 0;
-
-      // 6. Repeat, while k < len
-      while (k < len) {
-        // a. Let Pk be ! ToString(k).
-        // b. Let kValue be ? Get(O, Pk).
-        // c. Let testResult be ToBoolean(? Call(predicate, T, « kValue, k, O »)).
-        // d. If testResult is true, return kValue.
-        var kValue = o[k];
-        if (predicate.call(thisArg, kValue, k, o)) {
-          return kValue;
-        }
-        // e. Increase k by 1.
-        k++;
-      }
-
-      // 7. Return undefined.
-      return undefined;
-    },
-    configurable: true,
-    writable: true
-  });
-}
-
         // Returns true if the current browser is IE, false otherwise. Taken from here:
         // https://www.w3docs.com/snippets/javascript/how-to-detect-internet-explorer-in-javascript.html
   
-function isBrowserIE()
+export function isBrowserIE()
 {
   return navigator.userAgent.search('/MSIE|Trident/') > -1; // 'MSIE' for IE10-, 'Trident' for IE11
 }
@@ -390,7 +326,7 @@ function isBrowserIE()
         //    * UC Browser, Yandex Broswer, IE Mobile, Opera Mobile, Opera Mini, Firefox, MIUI Browser, Android Browser
         // All except Opera Mini have 'Mobi' substring in their User Agent strings.
 
-function isMobileDevice()
+export function isMobileDevice()
 {
   return navigator.userAgent.indexOf('Mobi') > -1;
 }
@@ -401,7 +337,7 @@ function isMobileDevice()
         // Taken from here, second comment:
         // https://stackoverflow.com/questions/9038625/detect-if-device-is-ios 
 
-function isIOS()
+export function isIOS()
 {
   return /iPad|iPhone|iPod/.test(navigator.platform) ||  
   (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
@@ -412,7 +348,7 @@ function isIOS()
         //    urls    - array of images' URLs
         //    [delay] - delay in ms to start loading, 100ms by default
 
-function preloadImages(urls, delay)
+export function preloadImages(urls, delay)
 {
   setTimeout(function() {
     for(var i = 0; i < urls.length; i++)
@@ -451,7 +387,7 @@ function preloadImages(urls, delay)
         //        o left and top take the default value 100 (if at least one is specified)
         //        o left and top are calculated to make window appear at screen center (if neither is specified)
 
-function popupWindow(url, name, options)
+export function popupWindow(url, name, options)
 {
   switch(arguments.length) {
   case 1:

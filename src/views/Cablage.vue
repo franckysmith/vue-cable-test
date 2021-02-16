@@ -1,9 +1,8 @@
 <template>
   <div>
     <ul>
-      <li v-for="affaire in affaires" :key="affaire.id">
-        <p>{{ name }}</p>
-        <p>{{ affaire.name }}</p>
+      <li v-for="cable in cables" :key="cable.cableid">
+        <p>{{ cable.name }}</p>
       </li>
     </ul>
     <form @submit.prevent="addAffaire">
@@ -98,26 +97,21 @@
         <input type="number" name="secu" />
         <input type="number" name="dispo" />
       </div>
-      <div v-for="truc in cable" :key="truc.cableid"></div>
-      <p>{{ truc.name }}</p>
+      <div v-for="cable in cables" :key="cable.cableid"></div>
     </form>
     <br />
   </div>
 </template>
 
 <script>
-// import util from "../js/lib/util.js";
-// import url from "../js/lib/url.js";
-// import ajax from "../js/lib/ajax.js";
 // import api from "../js/api.js";
 import axios from "axios";
-// import ref from "vue";
 
 export default {
   data() {
     return {
-      cablages: [],
-      affaires: [],
+      cables: [],
+      cable: [],
       name: "",
       prepa: "",
       sortie: "",
@@ -142,23 +136,17 @@ export default {
     };
   },
 
-  methods: {
-    addAffaire() {
-      axios.post("http://vue3/src/controllers/getDataAffaires.php", {
-        name: this.name
-      });
-      console.log("name?", name);
-    }
-  },
   mounted() {
     axios
-      .get("http://vue3/src/controllers/getDataAffaires.php")
-      .then(res => {
-        this.affaires = res.data;
-        console.log("Affaire:res:", res);
+      .call("cable_get")
+      .then(function(response) {
+        console.log("cable_get:");
+        console.log(response);
+        this.cables = response;
       })
-      .catch(error => {
-        console.log("typ", error);
+      .catch(function(response) {
+        console.log("cable_get:");
+        console.log(response);
       });
   }
 };

@@ -1,4 +1,4 @@
-// File:        url.js
+// File:        url.js (ES6 version)
 // Contents:    URL-related functions
 // Created:     04.04.2014
 // Programmer:  Edward A. Shiryaev
@@ -328,3 +328,5 @@ var url = (function() {
   return url;
   
 })();
+
+export { url };

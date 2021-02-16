@@ -7,11 +7,9 @@
 
 <body>
 
-<script src="../js/lib/util.js"></script>
-<script src="../js/lib/url.js"></script>
-<script src="../js/lib/ajax.js"></script>
-<script src="../js/api.js"></script>
-<script>
+<script type="module">
+
+import { Api } from '../js/api.js';
 
 var apiUrl = '../api.php';
 
@@ -58,13 +56,13 @@ api.call('cable_add', data).then(function(response) {
 
 var data = [
   {
-    cableid: 17,  // put here real cableid that were added via 'cable_add', see it in 'cable' table in phpmyadmin
+    cableid: 13,  // put here real cableid that were added via 'cable_add', see it in 'cable' table in phpmyadmin
     name:   'do50',
     type:   'electrical',
     total:  50
   },
   {
-    cableid: 18,  // put here real cableid that were added via 'cable_add', see it in 'cable table in phpmyadmin
+    cableid: 14,  // put here real cableid that were added via 'cable_add', see it in 'cable table in phpmyadmin
     name:   'rs434',
     type:   'microphone',
     total:  30
@@ -79,11 +77,11 @@ api.call('cable_update', data).then(function(response) {
   console.log(response);
 });*/
 
-/*//---- 'cable_delete' ----
+//---- 'cable_delete' ----
 
-// [ 17, 18 ] put here actual cable ids, see them in 'cable' table in phpmyadmin
+/*// [ 13, 14 ] put here actual cable ids, see them in 'cable' table in phpmyadmin
 
-api.call('cable_delete', [ 17, 18 ]).then(function(response) {
+api.call('cable_delete', [ 13, 14 ]).then(function(response) {
   console.log('cable_delete:');
   console.log(response);
 }).catch(function(response) {
@@ -131,7 +129,7 @@ api.call('affair_add', data).then(function(response) {
 /*//---- 'affair_update' ----
 
 var data = {
-  affairid:     3,  // put here actual affairid you want to update
+  affairid:     5,  // put here actual affairid you want to update
   name:         'Crocus Hall',
   prep_time:    'morning'
 };
@@ -147,7 +145,7 @@ api.call('affair_update', data).then(function(response) {
 /*//---- 'affair_delete' ----
 
 var data = {
-  affairid: '3'  // put here actual affairid you want to delete
+  affairid: 5  // put here actual affairid you want to delete
 };
 
 api.call('affair_delete', data).then(function(response) {

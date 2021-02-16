@@ -1,17 +1,11 @@
 <template>
   <div>
     <ul>
-      <li v-for="affaire in affaires" :key="affaire.id">
-        <p>{{ affaire.name }}</p>
+      <li v-for="cable in cables" :key="cable.id">
+        <p>{{}}</p>
       </li>
     </ul>
     <div class="entete">
-      <input
-        v-model="affaire"
-        class="titre_affaire"
-        type="text"
-        placeholder="Nom de l'affaire"
-      />
       <input class="button" type="submit" value="Résumé" />
     </div>
     <div class="dates">
@@ -63,67 +57,35 @@
         </div>
       </div>
     </div>
-    <div class="list">
-      <div>
-        <div v-for="cablage in cablages" :key="cablage.id">
-          <ul class="list_affaire">
-            <li>
-              <p>{{ cablage.affaire }}</p>
-            </li>
-            <li>
-              <p>{{ cablage.date_sortie }}</p>
-            </li>
-
-            <!-- <li>{{ cablage.face }}</li>
-            <li>{{ cablage.mon }}</li>
-            <li>{{ cablage.scene }}</li> -->
-          </ul>
-        </div>
-      </div>
-    </div>
   </div>
 </template>
 
 <script>
-// import util from "../js/lib/util.js";
-// import url from "../js/lib/url.js";
-// import ajax from "../js/lib/ajax.js";
-import api from "../js/api.js";
+import { Api } from "../js/api.js";
 
-//import axios from "axios";
-// import ref from "vue";
+var apiUrl = "../api.php";
+
+var api = new Api(apiUrl);
 
 export default {
   data() {
     return {
-      cablages: [],
-      affaires: []
+      cables: []
     };
   },
 
   methods() {
-    var searchby = {
-      //tech_id: 3,
-      name: "Casino de Paris"
-    };
-
     api
-      .call("affair_get", searchby)
-      .then(res => {
-        this.affaires = res.data;
-        console.log("Affaires:res:", res);
+      .call("cable_get")
+      .then(function(response) {
+        console.log("cable_get:");
+        console.log(response);
+        this.cables = response;
       })
-      .catch(error => {
-        console.log("typ", error);
+      .catch(function(response) {
+        console.log("cable_get:");
+        console.log(response);
       });
-    // .then(function(response) {
-    //   console.log("affair_get:");
-    //   console.log(response);
-    // })
-    // .catch(function(response) {
-    //   console.log("affair_get:");
-    //   console.log(response);
-    // });
   }
 };
 </script>

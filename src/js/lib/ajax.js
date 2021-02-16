@@ -1,10 +1,10 @@
-// File:        ajax.js
+// File:        ajax.js (ES6 version)
 // Contents:    cross domain ajax wrapper around XMLHttpRequest and XDomainRequest (same domain IE7+, cross domain IE8+)
 // Created:     05.04.2014
 // Programmer:  Edward A. Shiryaev
 
-//<?require_once 'url.js'?>
-//<?require_once 'util.js'?>
+import { url } from './url.js';
+import { isEmpty, assert } from './util.js';
 
 var ajax = (function() {
   
@@ -207,7 +207,7 @@ var ajax = (function() {
       if(rParts.query)
         params = url.parseQuery(rParts.query);
       
-      for(key in request.urlParams)
+      for(var key in request.urlParams)
         params[key] = request.urlParams[key]; // add new or override existing
         
       rParts.query = url.buildQuery(params);
@@ -260,3 +260,5 @@ var ajax = (function() {
   return ajax;
   
 })();
+
+export { ajax };
