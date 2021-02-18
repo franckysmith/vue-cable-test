@@ -248,7 +248,7 @@ export function arrayMerge(o1, o2)
   
   // merge with o2
   o2 = o2 || {};
-  for(var key in o2)
+  for(key in o2)
     if(Object.prototype.hasOwnProperty.call(o2, key))
       r[key] = o2[key];
       
@@ -435,7 +435,7 @@ export function popupWindow(url, name, options)
   options.scrollbars = options.scrollbars ? 'yes' : 'no';
 
   var features = '';
-  for(prop in options)
+  for(var prop in options)
     features += prop + '=' + options[prop] + ',';
   features = features.substr(0, features.length - 1);
   

@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: localhost:3306
--- Generation Time: Jan 26, 2021 at 01:54 PM
+-- Generation Time: Feb 17, 2021 at 03:49 PM
 -- Server version: 10.2.36-MariaDB
 -- PHP Version: 7.1.14
 
@@ -25,10 +25,112 @@ SET time_zone = "+00:00";
 -- --------------------------------------------------------
 
 --
--- Table structure for table `affaires`
+-- Table structure for table `affair`
 --
 
-CREATE TABLE `affaires` (
+CREATE TABLE `affair` (
+  `affairid` int(10) UNSIGNED NOT NULL,
+  `tech_id` int(10) UNSIGNED NOT NULL,
+  `tech_name` varchar(50) NOT NULL,
+  `name` varchar(50) NOT NULL,
+  `ref` varchar(50) DEFAULT NULL,
+  `prep_date` date DEFAULT NULL,
+  `prep_time` enum('morning','afternoon') DEFAULT NULL,
+  `receipt_date` date NOT NULL,
+  `receipt_time` enum('morning','afternoon') DEFAULT NULL,
+  `return_date` date NOT NULL,
+  `return_time` enum('morning','afternoon') DEFAULT NULL,
+  `front` tinyint(1) NOT NULL DEFAULT 0,
+  `monitor` tinyint(1) NOT NULL DEFAULT 0,
+  `stage` tinyint(1) NOT NULL DEFAULT 0,
+  `master_note` text DEFAULT NULL,
+  `tech_note` text DEFAULT NULL,
+  `timestamp` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+--
+-- Dumping data for table `affair`
+--
+
+INSERT INTO `affair` (`affairid`, `tech_id`, `tech_name`, `name`, `ref`, `prep_date`, `prep_time`, `receipt_date`, `receipt_time`, `return_date`, `return_time`, `front`, `monitor`, `stage`, `master_note`, `tech_note`, `timestamp`) VALUES
+(1, 3, 'Edward', 'Cabrel Olympia', '', NULL, NULL, '2021-02-20', NULL, '2021-02-23', NULL, 0, 0, 1, NULL, NULL, '2021-02-10 17:58:11'),
+(2, 32, 'Francky', 'Casino de Paris', NULL, NULL, NULL, '2021-02-13', 'afternoon', '2021-02-25', 'morning', 1, 1, 0, NULL, NULL, '2021-02-12 20:03:02'),
+(3, 135, 'John', 'Metropolitan Opera', NULL, NULL, NULL, '2021-02-25', 'afternoon', '2021-02-28', NULL, 0, 0, 1, NULL, NULL, '2021-02-12 19:32:53'),
+(4, 3, 'Edward', 'Bolshoi Theater', NULL, NULL, NULL, '2021-02-05', NULL, '2021-02-13', 'morning', 1, 0, 1, NULL, NULL, '2021-02-12 20:03:11');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `cable`
+--
+
+CREATE TABLE `cable` (
+  `cableid` int(10) UNSIGNED NOT NULL,
+  `name` varchar(25) NOT NULL,
+  `type` enum('electrical','speaker','microphone') DEFAULT NULL,
+  `total` int(10) UNSIGNED NOT NULL DEFAULT 0,
+  `reserved` int(10) UNSIGNED NOT NULL DEFAULT 0,
+  `info` varchar(255) DEFAULT NULL,
+  `link` varchar(255) DEFAULT NULL,
+  `timestamp` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+--
+-- Dumping data for table `cable`
+--
+
+INSERT INTO `cable` (`cableid`, `name`, `type`, `total`, `reserved`, `info`, `link`, `timestamp`) VALUES
+(1, 'do07', NULL, 80, 10, NULL, NULL, '2021-01-22 15:31:58'),
+(2, 'do7', NULL, 60, 10, NULL, NULL, '2021-01-22 15:31:58'),
+(3, 'do10', NULL, 50, 10, NULL, NULL, '2021-01-22 15:31:58'),
+(4, 'do20', NULL, 35, 10, NULL, NULL, '2021-01-22 15:31:58'),
+(5, 'do25', NULL, 25, 8, NULL, NULL, '2021-01-22 15:31:58'),
+(6, 'do15p', NULL, 20, 8, NULL, NULL, '2021-01-22 15:31:58'),
+(7, 'do10p', NULL, 12, 8, NULL, NULL, '2021-01-22 15:31:58'),
+(8, 'dosub sans bague', NULL, 12, 8, NULL, NULL, '2021-01-22 15:31:58'),
+(9, 'dosub avec bague', NULL, 8, 2, NULL, NULL, '2021-01-22 15:31:58'),
+(10, 'dofill sans bague', NULL, 10, 2, NULL, NULL, '2021-01-22 15:31:58'),
+(11, 'dofill avec bague', NULL, 12, 3, NULL, NULL, '2021-01-22 15:31:58'),
+(12, 'boitier Do Sp', NULL, 5, 0, NULL, NULL, '2021-01-22 15:31:58');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `order`
+--
+
+CREATE TABLE `order` (
+  `orderid` int(10) UNSIGNED NOT NULL,
+  `cableid` int(10) UNSIGNED NOT NULL,
+  `affairid` int(10) UNSIGNED NOT NULL,
+  `tech_id` int(10) UNSIGNED NOT NULL,
+  `count` int(10) UNSIGNED NOT NULL DEFAULT 0,
+  `done` tinyint(1) NOT NULL DEFAULT 0,
+  `timestamp` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+--
+-- Dumping data for table `order`
+--
+
+INSERT INTO `order` (`orderid`, `cableid`, `affairid`, `tech_id`, `count`, `done`, `timestamp`) VALUES
+(1, 2, 1, 3, 20, 1, '2021-02-10 13:29:11'),
+(2, 3, 1, 3, 10, 1, '2021-02-10 13:29:11'),
+(3, 2, 2, 32, 15, 1, '2021-02-10 18:05:54'),
+(4, 3, 2, 32, 10, 1, '2021-02-10 13:31:24'),
+(5, 4, 2, 32, 5, 1, '2021-02-10 13:31:54'),
+(6, 2, 3, 135, 40, 1, '2021-02-10 18:04:46'),
+(7, 3, 3, 135, 20, 1, '2021-02-10 18:04:46'),
+(8, 4, 3, 135, 10, 1, '2021-02-10 18:05:19'),
+(11, 2, 4, 3, 30, 1, '2021-02-12 19:31:03');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `_affaires`
+--
+
+CREATE TABLE `_affaires` (
   `id` int(10) UNSIGNED NOT NULL,
   `all_cables` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL,
   `note_technician` text DEFAULT NULL,
@@ -50,10 +152,10 @@ CREATE TABLE `affaires` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 --
--- Dumping data for table `affaires`
+-- Dumping data for table `_affaires`
 --
 
-INSERT INTO `affaires` (`id`, `all_cables`, `note_technician`, `note_master`, `technician`, `technician_id`, `affaire_name`, `affaire_ref`, `date_prepa`, `morning_afternoon_prepa`, `date_sortie`, `morning_afternoon_sortie`, `date_retour`, `morning_afternoon_retour`, `update_at`, `front`, `monitor`, `stage`) VALUES
+INSERT INTO `_affaires` (`id`, `all_cables`, `note_technician`, `note_master`, `technician`, `technician_id`, `affaire_name`, `affaire_ref`, `date_prepa`, `morning_afternoon_prepa`, `date_sortie`, `morning_afternoon_sortie`, `date_retour`, `morning_afternoon_retour`, `update_at`, `front`, `monitor`, `stage`) VALUES
 (3, 'null', 'This should be seen by master and technician but only technician could edit it', 'This should be seen by master and technician but only master could edit it', 'Yohan', NULL, 'Theatre ', NULL, '2021-01-13', NULL, '2021-01-18', NULL, '2021-01-12', NULL, '2021-01-18 19:42:52', 1, NULL, NULL),
 (4, 'null', NULL, NULL, 'Francky', NULL, 'Casino de Paris', NULL, NULL, NULL, '2021-02-17', NULL, '2021-02-25', NULL, '2021-01-13 17:23:19', 1, 1, NULL),
 (5, 'null', NULL, NULL, 'Edward', NULL, 'C Cabrel Olympia', NULL, NULL, NULL, '2021-01-19', NULL, '2021-01-20', NULL, '2021-01-13 17:23:29', NULL, NULL, 1);
@@ -61,46 +163,10 @@ INSERT INTO `affaires` (`id`, `all_cables`, `note_technician`, `note_master`, `t
 -- --------------------------------------------------------
 
 --
--- Table structure for table `cable`
+-- Table structure for table `_cables_master`
 --
 
-CREATE TABLE `cable` (
-  `cableid` int(10) UNSIGNED NOT NULL,
-  `name` varchar(25) NOT NULL,
-  `type` enum('electrical','speaker','microphone') DEFAULT NULL,
-  `total` int(10) UNSIGNED NOT NULL DEFAULT 0,
-  `reserved` int(10) UNSIGNED NOT NULL DEFAULT 0,
-  `ordered` int(10) UNSIGNED NOT NULL DEFAULT 0,
-  `info` varchar(255) DEFAULT NULL,
-  `link` varchar(255) DEFAULT NULL,
-  `timestamp` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
---
--- Dumping data for table `cable`
---
-
-INSERT INTO `cable` (`cableid`, `name`, `type`, `total`, `reserved`, `ordered`, `info`, `link`, `timestamp`) VALUES
-(1, 'do07', NULL, 80, 10, 0, NULL, NULL, '2021-01-22 15:31:58'),
-(2, 'do7', NULL, 60, 10, 0, NULL, NULL, '2021-01-22 15:31:58'),
-(3, 'do10', NULL, 50, 10, 0, NULL, NULL, '2021-01-22 15:31:58'),
-(4, 'do20', NULL, 35, 10, 0, NULL, NULL, '2021-01-22 15:31:58'),
-(5, 'do25', NULL, 25, 8, 0, NULL, NULL, '2021-01-22 15:31:58'),
-(6, 'do15p', NULL, 20, 8, 0, NULL, NULL, '2021-01-22 15:31:58'),
-(7, 'do10p', NULL, 12, 8, 0, NULL, NULL, '2021-01-22 15:31:58'),
-(8, 'dosub sans bague', NULL, 12, 8, 0, NULL, NULL, '2021-01-22 15:31:58'),
-(9, 'dosub avec bague', NULL, 8, 2, 0, NULL, NULL, '2021-01-22 15:31:58'),
-(10, 'dofill sans bague', NULL, 10, 2, 0, NULL, NULL, '2021-01-22 15:31:58'),
-(11, 'dofill avec bague', NULL, 12, 3, 0, NULL, NULL, '2021-01-22 15:31:58'),
-(12, 'boitier Do Sp', NULL, 5, 0, 0, NULL, NULL, '2021-01-22 15:31:58');
-
--- --------------------------------------------------------
-
---
--- Table structure for table `cables_master`
---
-
-CREATE TABLE `cables_master` (
+CREATE TABLE `_cables_master` (
   `id` int(11) NOT NULL,
   `name` varchar(25) NOT NULL,
   `total` int(3) NOT NULL,
@@ -112,10 +178,10 @@ CREATE TABLE `cables_master` (
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
 --
--- Dumping data for table `cables_master`
+-- Dumping data for table `_cables_master`
 --
 
-INSERT INTO `cables_master` (`id`, `name`, `total`, `tampon`, `typ_cables`, `number_cable`, `info`, `link`) VALUES
+INSERT INTO `_cables_master` (`id`, `name`, `total`, `tampon`, `typ_cables`, `number_cable`, `info`, `link`) VALUES
 (1, 'do07', 80, 10, 0, 0, '', ''),
 (2, 'do7', 60, 10, 0, 0, '', ''),
 (3, 'do10', 50, 10, 0, 0, '', ''),
@@ -132,10 +198,10 @@ INSERT INTO `cables_master` (`id`, `name`, `total`, `tampon`, `typ_cables`, `num
 -- --------------------------------------------------------
 
 --
--- Table structure for table `cables_used`
+-- Table structure for table `_cables_used`
 --
 
-CREATE TABLE `cables_used` (
+CREATE TABLE `_cables_used` (
   `id` int(11) NOT NULL,
   `nb` int(3) DEFAULT NULL,
   `sec` int(3) DEFAULT NULL,
@@ -143,10 +209,10 @@ CREATE TABLE `cables_used` (
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
 --
--- Dumping data for table `cables_used`
+-- Dumping data for table `_cables_used`
 --
 
-INSERT INTO `cables_used` (`id`, `nb`, `sec`, `ok`) VALUES
+INSERT INTO `_cables_used` (`id`, `nb`, `sec`, `ok`) VALUES
 (1, NULL, NULL, NULL),
 (2, NULL, NULL, NULL),
 (3, NULL, NULL, NULL),
@@ -159,10 +225,10 @@ INSERT INTO `cables_used` (`id`, `nb`, `sec`, `ok`) VALUES
 -- --------------------------------------------------------
 
 --
--- Table structure for table `enceintes`
+-- Table structure for table `_enceintes`
 --
 
-CREATE TABLE `enceintes` (
+CREATE TABLE `_enceintes` (
   `id` int(100) NOT NULL,
   `typ` char(20) NOT NULL,
   `bp` varchar(15) NOT NULL,
@@ -190,10 +256,10 @@ CREATE TABLE `enceintes` (
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
 --
--- Dumping data for table `enceintes`
+-- Dumping data for table `_enceintes`
 --
 
-INSERT INTO `enceintes` (`id`, `typ`, `bp`, `poids`, `ouverture`, `spl`, `LA4`, `LA4_s`, `LA4X`, `LA4X_s`, `LA8`, `LA8_s`, `LA12X`, `LA12X_s`, `LA2Xise`, `LA2Xise_s`, `LA2Xibtl`, `LA2Xibtl_s`, `remarques`, `actif`, `voies`, `serie`, `link`, `picture`) VALUES
+INSERT INTO `_enceintes` (`id`, `typ`, `bp`, `poids`, `ouverture`, `spl`, `LA4`, `LA4_s`, `LA4X`, `LA4X_s`, `LA8`, `LA8_s`, `LA12X`, `LA12X_s`, `LA2Xise`, `LA2Xise_s`, `LA2Xibtl`, `LA2Xibtl_s`, `remarques`, `actif`, `voies`, `serie`, `link`, `picture`) VALUES
 (1, 'X4i', '120 Hz - 20 kHz', '1 kg', '110°', '116', '16', '4', '16', '4', '24', '6', '24', '6', '16', '4', '--', '--', '', 'Passif', 1, 'X', 'https://www.l-acoustics.com/wp-content/uploads/2019/02/x4i_sps_en_1-1.pdf', 'L-Acoustics_X4i.jpg'),
 (2, '5XT', '95 Hz - 20 kHz', '3.5 kg', '110°', '121', '12', '3', '16', '4', '24', '6', '24', '6', '16', '4', '--', '--', '', 'Passif', 1, 'X', 'https://www.l-acoustics.com/wp-content/uploads/2018/03/5xt_sps_fr_3-1.pdf', ''),
 (3, 'X8', '60 Hz - 20 kHz', '12 kg', '100°', '129', '--', '--', '8', '2', '8*', '3', '12', '3', '8', '2', '2', '1', 'LA8 peut piloter jusqu\'à trois X8 par sortie, mais pas plus de huit par contrôleur à haut niveau.', 'Passif', 1, 'X', 'https://www.l-acoustics.com/wp-content/uploads/2018/06/x8_sps_fr_3-0-1.pdf', ''),
@@ -241,10 +307,12 @@ INSERT INTO `enceintes` (`id`, `typ`, `bp`, `poids`, `ouverture`, `spl`, `LA4`, 
 --
 
 --
--- Indexes for table `affaires`
+-- Indexes for table `affair`
 --
-ALTER TABLE `affaires`
-  ADD PRIMARY KEY (`id`);
+ALTER TABLE `affair`
+  ADD PRIMARY KEY (`affairid`),
+  ADD UNIQUE KEY `name` (`name`,`receipt_date`),
+  ADD UNIQUE KEY `ref` (`ref`);
 
 --
 -- Indexes for table `cable`
@@ -254,21 +322,35 @@ ALTER TABLE `cable`
   ADD UNIQUE KEY `name` (`name`);
 
 --
--- Indexes for table `cables_master`
+-- Indexes for table `order`
 --
-ALTER TABLE `cables_master`
+ALTER TABLE `order`
+  ADD PRIMARY KEY (`orderid`),
+  ADD UNIQUE KEY `cableid` (`cableid`,`affairid`,`tech_id`),
+  ADD KEY `affairid` (`affairid`);
+
+--
+-- Indexes for table `_affaires`
+--
+ALTER TABLE `_affaires`
   ADD PRIMARY KEY (`id`);
 
 --
--- Indexes for table `cables_used`
+-- Indexes for table `_cables_master`
 --
-ALTER TABLE `cables_used`
+ALTER TABLE `_cables_master`
   ADD PRIMARY KEY (`id`);
 
 --
--- Indexes for table `enceintes`
+-- Indexes for table `_cables_used`
 --
-ALTER TABLE `enceintes`
+ALTER TABLE `_cables_used`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- Indexes for table `_enceintes`
+--
+ALTER TABLE `_enceintes`
   ADD PRIMARY KEY (`id`);
 
 --
@@ -276,34 +358,57 @@ ALTER TABLE `enceintes`
 --
 
 --
--- AUTO_INCREMENT for table `affaires`
+-- AUTO_INCREMENT for table `affair`
 --
-ALTER TABLE `affaires`
-  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
+ALTER TABLE `affair`
+  MODIFY `affairid` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 
 --
 -- AUTO_INCREMENT for table `cable`
 --
 ALTER TABLE `cable`
-  MODIFY `cableid` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=16;
+  MODIFY `cableid` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=19;
 
 --
--- AUTO_INCREMENT for table `cables_master`
+-- AUTO_INCREMENT for table `order`
 --
-ALTER TABLE `cables_master`
+ALTER TABLE `order`
+  MODIFY `orderid` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=12;
+
+--
+-- AUTO_INCREMENT for table `_affaires`
+--
+ALTER TABLE `_affaires`
+  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
+
+--
+-- AUTO_INCREMENT for table `_cables_master`
+--
+ALTER TABLE `_cables_master`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=13;
 
 --
--- AUTO_INCREMENT for table `cables_used`
+-- AUTO_INCREMENT for table `_cables_used`
 --
-ALTER TABLE `cables_used`
+ALTER TABLE `_cables_used`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
 
 --
--- AUTO_INCREMENT for table `enceintes`
+-- AUTO_INCREMENT for table `_enceintes`
 --
-ALTER TABLE `enceintes`
+ALTER TABLE `_enceintes`
   MODIFY `id` int(100) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=123;
+
+--
+-- Constraints for dumped tables
+--
+
+--
+-- Constraints for table `order`
+--
+ALTER TABLE `order`
+  ADD CONSTRAINT `order_ibfk_1` FOREIGN KEY (`cableid`) REFERENCES `cable` (`cableid`) ON UPDATE CASCADE,
+  ADD CONSTRAINT `order_ibfk_2` FOREIGN KEY (`affairid`) REFERENCES `affair` (`affairid`) ON DELETE CASCADE ON UPDATE CASCADE;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;

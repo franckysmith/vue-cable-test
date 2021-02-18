@@ -23,7 +23,7 @@ define('TIMEZONE', 'Europe/Paris');
 
         // Introduced to be able to run server's api.php locally.
 
-define('API_CORS_DEBUG_ORIGIN', 'http://localhost:8080');
+define('API_CORS_DEBUG_ORIGIN', 'http://localhost');
 
 class config {
   

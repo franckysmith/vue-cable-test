@@ -1,10 +1,14 @@
 <template>
   <div>
-    <ul>
-      <li v-for="cable in cables" :key="cable.id">
-        <p>{{}}</p>
-      </li>
-    </ul>
+    <div class="entete" v-for="affaire in affaires" :key="affaire.affairid">
+      <input
+        v-model="affaire.name"
+        class="titre_affaire"
+        placeholder="Nom de l'affaire"
+      />
+      <input class="button" type="submit" value="Ma liste" />
+      <input class="button" type="submit" value="New" />
+    </div>
     <div class="entete">
       <input class="button" type="submit" value="Résumé" />
     </div>
@@ -57,34 +61,56 @@
         </div>
       </div>
     </div>
+    <div
+      class="list_affaires"
+      v-for="affaire in affaires"
+      :key="affaire.affairid"
+    >
+      <button @click="sel_affaire(affaire.affairid)">
+        {{ affaire.affairid }}
+      </button>
+      {{ affaire.name }}
+      <p>{{ affaire.tech_name }}</p>
+    </div>
   </div>
 </template>
 
 <script>
 import { Api } from "../js/api.js";
 
-var apiUrl = "../api.php";
-
-var api = new Api(apiUrl);
+var url = "https://cinod.fr/cables/api.php";
+var api = new Api(url);
 
 export default {
   data() {
     return {
-      cables: []
+      affaires: [],
+      affaire: "",
+      affairid: "",
+      cables: [],
+      name: "",
+      searchby: {
+        tech_id: "",
+        name: ""
+      }
     };
   },
+  methods: {
+    sel_affaire(id) {
+      this.affaires = this.affaires.filter(affaire => affaire.affairid == id);
+      console.log("id:", this.affaire);
+    }
+  },
 
-  methods() {
+  created() {
     api
-      .call("cable_get")
-      .then(function(response) {
-        console.log("cable_get:");
-        console.log(response);
-        this.cables = response;
+      .call("affair_get", this.searchby.name)
+      .then(response => {
+        console.log("affair_get:", response);
+        this.affaires = response;
       })
-      .catch(function(response) {
-        console.log("cable_get:");
-        console.log(response);
+      .catch(response => {
+        console.log("err_affair_get:", response);
       });
   }
 };
@@ -108,6 +134,8 @@ input {
   border: 1px solid #000000;
   box-sizing: border-box;
   box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
+}
+.list_affaires {
 }
 .button {
   margin: 10px;
