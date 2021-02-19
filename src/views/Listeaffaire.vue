@@ -135,9 +135,7 @@ input {
   box-sizing: border-box;
   box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
 }
-.list_affaires {
-}
-.button {
+utton {
   margin: 10px;
   padding: 5px;
   min-width: 50px;
