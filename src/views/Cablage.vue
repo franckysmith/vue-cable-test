@@ -148,6 +148,7 @@
             </div>
           </div>
         </div>
+
         <div class="poste">
           <input class="button" type="submit" value="HP" />
           <input class="button" type="submit" value="Module" />
@@ -163,14 +164,18 @@
           <input style="border:0px" type="number" placeholder="secu" />
           <input style="border:0px" type="number" placeholder="dispo" />
         </div>
-        <div class="list" v-for="cable in cables" :key="cable.cableid">
-          <input type="checkbox" name="ok" />
+        <div v-for="cable in cables" :key="cable.cableid">
+          <input type="checkbox" id="ok" name="ok" />
           <h5 class="list_name">{{ cable.name }}</h5>
-          <input v-model="order.count" type="int" name="nb" />
+          <input v_model="orderFiltered.count" name="nb" />
           <input type="number" name="secu" />
-          <input type="number" name="dispo" />
+          <input name="dispo" />
         </div>
-
+        <div v-for="order in orders" :key="order.orderid">
+          <div>
+            <p>test{{ order.count }}</p>
+          </div>
+        </div>
         <div>
           <p>affairid: {{ affaire.affairid }}</p>
         </div>
@@ -196,6 +201,7 @@ export default {
       cables: [],
       cable: [],
       affaires: [],
+      affaire: [],
       affairid: "",
       front: "",
       master_note: null,
@@ -229,15 +235,14 @@ export default {
 
   computed: {
     search() {
-      //eslint-disable-next-line prettier/prettier
       return this.affaires.filter(affaire => {
         return affaire.name.includes(this.affaireSelected);
       });
     },
-    orderfilter() {
-      return this.orders.filter(order => {
-        return order.orderid == this.affaire.affairid;
-      });
+    orderFilter() {
+      return this.orders.filter(
+        order => order.affairid == this.affaire.affairid
+      );
     }
   },
   methods: {
@@ -274,8 +279,8 @@ export default {
     api
       .call("order_get")
       .then(response => {
-        console.log("order_get:", response);
         this.orders = response;
+        console.log("order_get:", response);
       })
       .catch(response => {
         console.log("err_order_get:", response);
