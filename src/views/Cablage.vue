@@ -2,21 +2,14 @@
   <div>
     <div class="search">
       <ul>
-        <!-- <li>
-          <button @click="searchInput('name')">name</button>
-          <input v-if="inputType == 'name'" v-model="searchKey" type="text" />
-        </li> -->
-        <!-- <li>
-          <button @click="searchInput('tech')">Technicien</button>
-          <select v-if="inputType == 'tech'" v-model="searchKey" type="text">
-            <option value="">Technicien</option>
-            <option v-for="affaire in affaires" :key="affaire.affairid">
-              {{ affaire.tech_name }}
-            </option>
-          </select>
-        </li> -->
+        <li style="display flex,padding:10px">
+          <button @click="techSelected(135)">John</button>
+          <button @click="techSelected(3)">Edward</button>
+          <button @click="techSelected(32)">francky</button>
+          <button @click="allTechSelected()">All</button>
+        </li>
         <li>
-          <button @click="searchInput('affaire')">affaire</button>
+          <button @click="searchInput('affaire')">Choisir l'affaire</button>
           <select v-if="inputType == 'affaire'" v-model="affaireSelected">
             <option value="">Choisissez</option>
             <option v-for="affaire in affaires" :key="affaire.affairid"
@@ -165,19 +158,21 @@
           <input style="border:0px" type="number" placeholder="dispo" />
         </div>
         <div v-for="cable in cables" :key="cable.cableid">
+          <div v-for="order in orders" :key="order.orderid"></div>
           <input type="checkbox" id="ok" name="ok" />
-          <h5 class="list_name">{{ cable.name }}</h5>
-          <input v_model="orderFiltered.count" name="nb" />
+          <h5 class="list_name">{{ cable.name }}{{ cable.cableid }}</h5>
+          <input v_model="cable.cableid" name="nb" />
           <input type="number" name="secu" />
           <input name="dispo" />
         </div>
         <div v-for="order in orders" :key="order.orderid">
-          <div>
-            <p>test{{ order.count }}</p>
-          </div>
+          <p>order.affairid: {{ order.affairid }}</p>
         </div>
         <div>
-          <p>affairid: {{ affaire.affairid }}</p>
+          <p>{{ orders }}</p>
+        </div>
+        <div>
+          <p>affaire.affairid: {{ affaire.affairid }}</p>
         </div>
         <div>
           <span>{{ cable.name }} </span>
@@ -200,6 +195,7 @@ export default {
     return {
       cables: [],
       cable: [],
+      cableid: "",
       affaires: [],
       affaire: [],
       affairid: "",
@@ -215,13 +211,13 @@ export default {
       return_date: "",
       return_time: null,
       stage: "1",
-      tech_id: "3",
+      tech_id: "5",
       tech_name: "",
       tech_note: null,
       timestamp: "",
 
       orders: [],
-      cableid: "",
+
       count: "",
       done: "",
       orderid: "",
@@ -229,7 +225,9 @@ export default {
       searchKey: "",
       searchTechKey: "",
       affaireSelected: "",
-      inputType: ""
+      inputType: "",
+
+      selid: ""
     };
   },
 
@@ -239,33 +237,96 @@ export default {
         return affaire.name.includes(this.affaireSelected);
       });
     },
-    orderFilter() {
-      return this.orders.filter(
-        order => order.affairid == this.affaire.affairid
-      );
+
+    trucmuch() {
+      return this.affaire.affairid;
+    },
+    ordercount() {
+      return this.orders.filter(order => {
+        return order.count.includes(this.cable.cableid == this.order.cableid);
+      });
     }
   },
+
   methods: {
     searchInput(arg) {
       this.inputType = arg;
+    },
+
+    orderAffairId() {
+      let searchby = {
+        affairid: 3
+      };
+      api
+        .call("order_get", searchby)
+        .then(response => {
+          this.orders = response;
+          console.log("order_get:", response);
+        })
+        .catch(response => {
+          console.log("err_order_get:", response);
+        });
+    },
+    // AffairTechSelected(affaireSelected) {
+    //   let searchby = {
+    //     //tech_id: param
+    //     name: affaireSelected
+    //   };
+    //   api
+    //     .call("affair_get", searchby)
+    //     .then(response => {
+    //       this.affaires = response;
+    //       console.log("affair_get:", response);
+    //     })
+    //     .catch(function(response) {
+    //       console.log("affair_get:", response);
+    //     });
+    // },
+
+    // orderSelected() {
+    //   let searchby = {
+    //     affairid: 2
+    //   };
+    //   api
+    //     .call("order_get", searchby)
+    //     .then(response => {
+    //       this.orders = response;
+    //       console.log("order_get:", response);
+    //     })
+    //     .catch(response => {
+    //       console.log("err_order_get:", response);
+    //     });
+    // },
+
+    techSelected(param) {
+      let searchby = {
+        tech_id: param
+        // name: "casino de paris"
+      };
+      api
+        .call("affair_get", searchby)
+        .then(response => {
+          this.affaires = response;
+          console.log("affair_get:", response);
+        })
+        .catch(function(response) {
+          console.log("affair_get:", response);
+        });
+    },
+    allTechSelected() {
+      api
+        .call("affair_get")
+        .then(response => {
+          this.affaires = response;
+          console.log("affair_get:", response);
+        })
+        .catch(function(response) {
+          console.log("affair_get:", response);
+        });
     }
   },
 
   mounted() {
-    // const searchby = {
-    //   tech_id: 3
-    //   //name: ""
-    // };
-    api
-      .call("affair_get")
-      .then(response => {
-        this.affaires = response;
-        console.log("affair_get:", response);
-      })
-      .catch(function(response) {
-        console.log("affair_get:", response);
-      });
-
     api
       .call("cable_get")
       .then(response => {
@@ -274,16 +335,6 @@ export default {
       })
       .catch(response => {
         console.log("cable_get:", response);
-      });
-
-    api
-      .call("order_get")
-      .then(response => {
-        this.orders = response;
-        console.log("order_get:", response);
-      })
-      .catch(response => {
-        console.log("err_order_get:", response);
       });
   }
 };
