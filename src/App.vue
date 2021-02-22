@@ -1,9 +1,8 @@
 <template>
   <div>
     <div id="nav">
-      <router-link to="/">Home</router-link> |
-      <router-link to="/enceinte">Enceinte</router-link> |
-      <router-link to="/cablage">Cablage</router-link>|
+      <router-link to="/">CablageMaster</router-link> |
+      <router-link to="/cablage">Cablage</router-link> |
       <router-link to="/listeaffaire">Affaires</router-link>
     </div>
     <router-view />

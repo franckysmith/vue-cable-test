@@ -239,8 +239,9 @@ export default {
     },
 
     trucmuch() {
-      return this.affaire.affairid;
+      return this.selid == this.affaire.affairid;
     },
+
     ordercount() {
       return this.orders.filter(order => {
         return order.count.includes(this.cable.cableid == this.order.cableid);
@@ -253,9 +254,9 @@ export default {
       this.inputType = arg;
     },
 
-    orderAffairId() {
+    orderAffairId(selid) {
       let searchby = {
-        affairid: 3
+        affairid: selid
       };
       api
         .call("order_get", searchby)
@@ -283,21 +284,6 @@ export default {
     //     });
     // },
 
-    // orderSelected() {
-    //   let searchby = {
-    //     affairid: 2
-    //   };
-    //   api
-    //     .call("order_get", searchby)
-    //     .then(response => {
-    //       this.orders = response;
-    //       console.log("order_get:", response);
-    //     })
-    //     .catch(response => {
-    //       console.log("err_order_get:", response);
-    //     });
-    // },
-
     techSelected(param) {
       let searchby = {
         tech_id: param
@@ -309,7 +295,7 @@ export default {
           this.affaires = response;
           console.log("affair_get:", response);
         })
-        .catch(function(response) {
+        .catch(response => {
           console.log("affair_get:", response);
         });
     },
@@ -320,7 +306,7 @@ export default {
           this.affaires = response;
           console.log("affair_get:", response);
         })
-        .catch(function(response) {
+        .catch(response => {
           console.log("affair_get:", response);
         });
     }
@@ -335,6 +321,18 @@ export default {
       })
       .catch(response => {
         console.log("cable_get:", response);
+      });
+    // let searchby = {
+    //   affairid: []
+    // };
+    api
+      .call("order_get")
+      .then(response => {
+        this.orders = response;
+        console.log("order_get:", response);
+      })
+      .catch(response => {
+        console.log("err_order_get:", response);
       });
   }
 };
